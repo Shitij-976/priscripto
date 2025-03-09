@@ -7,7 +7,7 @@ import RealtedDoctors from '../components/RealtedDoctors'
 const Appointment = () => {
     const { docId } = useParams()
     const { doctors, currencySymbol } = useContext(AppContext)
-    const dayOfWeek = ['SUN', 'MUN', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+    const dayOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
     const [docInfo, setDocInfo] = useState(null)
     const [docSlots, setDocSlots] = useState([])
@@ -23,13 +23,13 @@ const Appointment = () => {
     const getAvailableSlots = async () => {
         setDocSlots([])
 
-        //curret date
+        //current date
         let today = new Date()
         for (let i = 0; i < 7; i++) {
-            //geting datw with index
+            //getting date with index
             let currentDate = new Date(today)
             currentDate.setDate(today.getDate() + i)
-            //seting end time with index
+            //setting end time with index
             let endTime = new Date()
             endTime.setDate(today.getDate() + i)
             endTime.setHours(21, 0, 0, 0)
@@ -69,7 +69,7 @@ const Appointment = () => {
     }, [docInfo])
 
     useEffect(() => {
-console.log(docSlots);
+        console.log(docSlots);
 
     }, [docSlots])
 
@@ -82,7 +82,7 @@ console.log(docSlots);
                 </div>
                 <div className='flex-1 bg-blue-50 rounded-lg p-8 py-7  mx-2 sm:mx-0 mt-[-80px] sm:mt-0'>
                     {/* name,degree,experience */}
-                    <p className='flex items-centergap-2 text-2xl font-medium text-gray-900'>{docInfo.name}
+                    <p className='flex items-center gap-2 text-2xl font-medium text-gray-900'>{docInfo.name}
                         <img className='w-5' src={assets.verified_icon} alt="" /> </p>
                     <div className='flex items-center gap-2 text-sm mt-1 text-gray-600'>
                         <p>  {docInfo.degree} - {docInfo.speciality}</p>
@@ -105,17 +105,17 @@ console.log(docSlots);
                 <div className='flex gap-3 items-center w-full overflow-x-scroll mt-4'>
                     {
                         docSlots.length && docSlots.map((item, index) => (
-                            <div onClick={()=> setSlotIndex(index)} className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${SlotIndex ===index ? 'bg-primary text-white ': 'border border-gray-200'}`} key = {index}>
-                                    <p>{item[0] && dayOfWeek[item[0].datetime.getDay()]}</p>
-                                    <p>{item[0] && item[0].datetime.getDate()}</p>
+                            <div onClick={() => setSlotIndex(index)} className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${SlotIndex === index ? 'bg-primary text-white ' : 'border border-gray-200'}`} key={index}>
+                                <p>{item[0] && dayOfWeek[item[0].datetime.getDay()]}</p>
+                                <p>{item[0] && item[0].datetime.getDate()}</p>
                             </div>
                         ))
                     }
                 </div>
                 <div className=' flex items-center gap-3 w-full  overflow-x-scroll mt-4'>
                     {
-                        docSlots.length && docSlots[SlotIndex].map((item,index)=>(
-                        <p onClick={()=> setSlotTime(item.time)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === SlotTime ? 'bg-primary text-white': 'text-gray-400 border border-gray-300'}`} key={index}>
+                        docSlots.length && docSlots[SlotIndex].map((item, index) => (
+                            <p onClick={() => setSlotTime(item.time)} className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${item.time === SlotTime ? 'bg-primary text-white' : 'text-gray-400 border border-gray-300'}`} key={index}>
                                 {item.time.toLowerCase()}
                             </p>
                         ))
@@ -124,7 +124,7 @@ console.log(docSlots);
                 <button className='bg-primary text-white  text-sm font-light px-14 py-3 rounded-full my-6'>Book an Appointment</button>
             </div>
             {/* related doctor */}
-            <RealtedDoctors docId={docId} speciality={docInfo.speciality}/>
+            <RealtedDoctors docId={docId} speciality={docInfo.speciality} />
         </div>
     )
 }
