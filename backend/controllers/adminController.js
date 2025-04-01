@@ -1,3 +1,8 @@
+import validator from "validator";
+import bcrypt from "bcrypt";
+import { v2 as cloudinary } from "cloudinary";
+import doctorModel from "../models/doctorModel.js";
+
 const addDoctor = async (req, res) => {
   try {
     const {
@@ -13,33 +18,85 @@ const addDoctor = async (req, res) => {
     } = req.body;
 
     const imageFile = req.file;
-    console.log({
+
+    // Debugging: Log the request body and file
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
+
+    // Validate required fields
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !speciality ||
+      !degree ||
+      !experience ||
+      !about ||
+      !fees ||
+      !address
+    ) {
+      console.error("Missing details:", { name, email, password, speciality, degree, experience, about, fees, address });
+      return res.status(400).json({ success: false, message: "Missing details" });
+    }
+
+    // Validate email format
+    if (!validator.isEmail(email)) {
+      return res.status(400).json({ success: false, message: "Invalid email format" });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ success: false, message: "Password must be at least 8 characters long" });
+    }
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Check if image file exists
+    if (!imageFile) {
+      return res.status(400).json({ success: false, message: "Image file is required" });
+    }
+
+    // Upload image to Cloudinary
+    const imageUploader = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
+    const imageUrl = imageUploader.secure_url;
+
+    // Parse address if it's a JSON string
+    let parsedAddress;
+    try {
+      parsedAddress = typeof address === "string" ? JSON.parse(address) : address;
+    } catch (error) {
+      console.error("Invalid address format:", address);
+      return res.status(400).json({ success: false, message: "Invalid address format" });
+    }
+
+    // Prepare doctor data
+    const doctorData = {
       name,
       email,
-      password,
+      password: hashedPassword,
+      image: imageUrl,
       speciality,
       degree,
       experience,
       about,
       fees,
-      address,
-    });
+      address: parsedAddress,
+      date: Date.now(),
+    };
 
-    // Debugging: Check if the file is being received
-    if (!imageFile) {
-      console.error("No file received");
-      return res.status(400).json({ message: "Image file is required" });
-    }
+    // Save doctor to the database
+    const newDoctor = new doctorModel(doctorData);
+    await newDoctor.save();
 
-    console.log("File received:", imageFile);
-
-    // Example response (replace with actual database logic)
-    res
-      .status(201)
-      .json({ message: "Doctor added successfully", data: req.body });
+    // Send success response
+    res.status(201).json({ success: true, message: "Doctor added successfully", doctor: newDoctor });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error occurred:", error);
+    res.status(500).json({ success: false, message: "Internal server error", error: error.message });
   }
 };
 
