@@ -20,7 +20,7 @@ app.use(cors());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'))); // Serve uploaded files
 
 // API endpoints
-app.use('/api/admin', adminRouter);
+app.use('/api/admin/', adminRouter);
 
 app.get('/', (req, res) => {
   res.send('Server is working');

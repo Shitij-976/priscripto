@@ -1,79 +1,68 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { AppContext } from '../context/AppContext'
-import { assets } from '../assets/assets'
- import RealtedDoctors from '../components/RealtedDoctors'
+import React, { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { AppContext } from '../context/AppContext';
+import { assets } from '../assets/assets';
+import RealtedDoctors from '../components/RealtedDoctors';
 
 const Appointment = () => {
-    const { docId } = useParams()
-    const { doctors, currencySymbol } = useContext(AppContext)
-    const dayOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+    const { docId } = useParams();
+    const { doctors, currencySymbol } = useContext(AppContext);
+    const dayOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-    const [docInfo, setDocInfo] = useState(null)
-    const [docSlots, setDocSlots] = useState([])
-    const [SlotIndex, setSlotIndex] = useState(0)
-    const [SlotTime, setSlotTime] = useState('')
+    const [docInfo, setDocInfo] = useState(null);
+    const [docSlots, setDocSlots] = useState([]);
+    const [SlotIndex, setSlotIndex] = useState(0);
+    const [SlotTime, setSlotTime] = useState('');
 
-    // Fetch doctor information based on docId
     const fetchDocInfo = async () => {
-        const docInfo = doctors.find(doc => doc._id === docId)
-        setDocInfo(docInfo)
-    }
+        const docInfo = doctors.find(doc => doc._id === docId);
+        setDocInfo(docInfo);
+    };
 
-    // Generate available slots for the next 7 days
     const getAvailableSlots = () => {
-        setDocSlots([]) // Reset slots before populating new ones
-
-        let today = new Date()
-        let allSlots = [] // Temporary array to store slots before updating state
+        setDocSlots([]);
+        let today = new Date();
+        let allSlots = [];
 
         for (let i = 0; i < 7; i++) {
-            let currentDate = new Date(today)
-            currentDate.setDate(today.getDate() + i)
+            let currentDate = new Date(today);
+            currentDate.setDate(today.getDate() + i);
 
-            let endTime = new Date(currentDate)
-            endTime.setHours(21, 0, 0, 0) // Setting end time to 9:00 PM
+            let endTime = new Date(currentDate);
+            endTime.setHours(21, 0, 0, 0);
 
-            // Adjust starting time based on the current time
             if (today.getDate() === currentDate.getDate()) {
-                currentDate.setHours(currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10)
-                currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0)
+                if (currentDate.getHours() >= 21) continue;
+                currentDate.setHours(Math.max(currentDate.getHours() + 1, 10));
+                currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
             } else {
-                currentDate.setHours(10)
-                currentDate.setMinutes(0)
+                currentDate.setHours(10);
+                currentDate.setMinutes(0);
             }
 
-            let timeslots = []
+            let timeslots = [];
             while (currentDate < endTime) {
-                let formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-
-                timeslots.push({
-                    datetime: new Date(currentDate),
-                    time: formattedTime
-                })
-
-                currentDate.setMinutes(currentDate.getMinutes() + 30) // Increment by 30 minutes
+                let formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                timeslots.push({ datetime: new Date(currentDate), time: formattedTime });
+                currentDate.setMinutes(currentDate.getMinutes() + 30);
             }
 
-            allSlots.push(timeslots)
+            allSlots.push(timeslots);
         }
 
-        setDocSlots(allSlots) // Update state after all slots are generated
-    }
+        setDocSlots(allSlots);
+    };
 
-    // Fetch doctor info when component mounts or when docId/doctors change
     useEffect(() => {
-        fetchDocInfo()
-    }, [doctors, docId])
+        fetchDocInfo();
+    }, [doctors, docId]);
 
-    // Generate available slots only when docInfo is available
     useEffect(() => {
-        if (docInfo) getAvailableSlots()
-    }, [docInfo])
+        if (docInfo) getAvailableSlots();
+    }, [docInfo]);
 
-    // Log the available slots whenever they update (for debugging)
     useEffect(() => {
-        console.log(docSlots);
+        console.log('Generated Slots:', docSlots);
     }, [docSlots]);
 
     return docInfo && (
@@ -92,14 +81,12 @@ const Appointment = () => {
                         <p>{docInfo.degree} - {docInfo.speciality}</p>
                         <button className='py-0.5 px-2 border text-xs rounded-full'>{docInfo.experience}</button>
                     </div>
-                    {/* About Doctor */}
                     <div>
                         <p className='flex items-center gap-1 text-sm font-medium text-gray-900 mt-3'>
                             About <img src={assets.info_icon} alt="" />
                         </p>
                         <p className='text-sm text-gray-500 max-w-[700px] mt-1'>{docInfo.about}</p>
                     </div>
-                    {/* Appointment Fee */}
                     <p className='mt-6'>
                         Appointment fee: <span className='text-gray-600'>{currencySymbol}{docInfo.fees}</span>
                     </p>
@@ -123,7 +110,6 @@ const Appointment = () => {
                         ))
                     }
                 </div>
-
                 <div className='flex items-center gap-3 w-full overflow-x-scroll mt-4'>
                     {
                         docSlots.length > 0 && docSlots[SlotIndex] ? docSlots[SlotIndex].map((item, index) => (
@@ -134,11 +120,9 @@ const Appointment = () => {
                             >
                                 {item.time.toLowerCase()}
                             </p>
-                        )) : null
+                        )) : <p className="text-gray-500">No slots available for this day.</p>
                     }
                 </div>
-                
-                {/* Book Appointment Button */}
                 <button className='bg-primary text-white text-sm font-light px-14 py-3 rounded-full my-6'>
                     Book an Appointment
                 </button>
@@ -147,7 +131,7 @@ const Appointment = () => {
             {/* Related Doctors Section */}
             <RealtedDoctors docId={docId} speciality={docInfo.speciality} /> 
         </div>
-    )
-}
+    );
+};
 
-export default Appointment
+export default Appointment;
