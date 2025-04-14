@@ -1,5 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify"; // Import ToastContainer
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 import Home from "./pages/Home";
 import Doctors from "./pages/Doctors";
 import About from "./pages/About";
@@ -9,12 +11,13 @@ import MyAppointment from "./pages/MyAppointment";
 import Appointment from "./pages/Appointment";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
-import Footer from "./components/Footer"; // ✅ Added missing import
+import Footer from "./components/Footer";
 
 const App = () => {
   return (
     <BrowserRouter>
       <div className="mx-4 sm:mx-[10%]">
+        <ToastContainer /> {/* Add ToastContainer here */}
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -27,7 +30,7 @@ const App = () => {
           <Route path="/my-appointment" element={<MyAppointment />} />
           <Route path="/appointment/:docId" element={<Appointment />} />
         </Routes>
-        <Footer /> {/* ✅ No more error */}
+        <Footer />
       </div>
     </BrowserRouter>
   );

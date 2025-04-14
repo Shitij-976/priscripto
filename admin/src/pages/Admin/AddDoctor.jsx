@@ -3,6 +3,7 @@ import { assets } from "../../assets/assets";
 import { AdminContext } from "../../context/AdminContext";
 import { toast } from "react-toastify";
 import axios from "axios";
+
 const AddDoctor = () => {
   const [docImg, setDocImg] = useState(false);
   const [name, setName] = useState("");
@@ -23,6 +24,7 @@ const AddDoctor = () => {
       if (!docImg) {
         return toast.error("Image is not selected");
       }
+
       const formData = new FormData();
       formData.append("image", docImg);
       formData.append("name", name);
@@ -37,18 +39,44 @@ const AddDoctor = () => {
         "address",
         JSON.stringify({ line1: address1, line2: address2 })
       );
-      formData.forEach((value,key)=>{
+
+      // Debugging logs
+      console.log("Submitting form data...");
+      formData.forEach((value, key) => {
         console.log(`${key}: ${value}`);
-        
-      })
-      const {data} = axios.post(backendUrl + "/api/admin/add-doctor",formData,{headers:{aToken}})
-        if (data.success) {
-          toast.success(data.message);
-        }else{
-            toast.error(data.message);
-        }
-    } catch (error) {}
+      });
+
+      const { data } = await axios.post(
+        `${backendUrl}/api/admin/add-doctor`,
+        formData,
+        { headers: { aToken } }
+      );
+
+      if (data.success) {
+        toast.success(data.message);
+        // Clear form fields after successful submission
+        setDocImg(false);
+        setName("");
+        setEmail("");
+        setPassword("");
+        setExperience("1 Year");
+        setFees("");
+        setAbout("");
+        setSpeciality("General Physician");
+        setDegree("");
+        setAddress1("");
+        setAddress2("");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error adding doctor:", error.response?.data || error.message);
+      toast.error(
+        error.response?.data?.message || "Something went wrong. Please try again."
+      );
+    }
   };
+
   return (
     <form onSubmit={onSubmitHandler} className="m-5 w-full">
       <p className="mb-3 text-lg font font-medium">Add Doctor</p>
@@ -57,7 +85,7 @@ const AddDoctor = () => {
         <div className="flex items-center gap-4 mb-8 text-gray-500">
           <label htmlFor="doc-img">
             <img
-              className="w-16 bg-gray-100 rounded-full cursor-pointer "
+              className="w-16 bg-gray-100 rounded-full cursor-pointer"
               src={docImg ? URL.createObjectURL(docImg) : assets.upload_area}
               alt=" "
             />
@@ -110,8 +138,6 @@ const AddDoctor = () => {
               <select
                 onChange={(e) => setExperience(e.target.value)}
                 value={experience}
-                name=""
-                id=""
               >
                 <option value="1 Year">1 Year</option>
                 <option value="2 Year">2 Year</option>
@@ -143,8 +169,6 @@ const AddDoctor = () => {
               <select
                 onChange={(e) => setSpeciality(e.target.value)}
                 value={speciality}
-                name=""
-                id=""
               >
                 <option value="General Physician">General Physician</option>
                 <option value="Gynecologist">Gynecologist</option>
@@ -191,13 +215,13 @@ const AddDoctor = () => {
             onChange={(e) => setAbout(e.target.value)}
             value={about}
             placeholder="write about doctor"
-            row={5}
+            rows={5}
             required
           />
         </div>
         <button
           type="submit"
-          className=" bg-primary px-5 py-3 rounded-full text-white text-sm"
+          className="bg-primary px-5 py-3 rounded-full text-white text-sm"
         >
           Add Doctor
         </button>

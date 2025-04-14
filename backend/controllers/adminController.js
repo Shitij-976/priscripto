@@ -155,5 +155,22 @@ const loginAdmin = async (req, res) => {
     });
   }
 };
-
-export { addDoctor, loginAdmin };
+// ApI  to get all doctor list
+const allDoctors = async (req, res) => {
+  try {
+    const doctors = await doctorModel.find({}).select( '-password' );
+    res.status(200).json({
+      success: true,
+      message: "Doctor list fetched successfully",
+      doctors,
+    });
+  } catch (error) {
+    console.error("Error occurred:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};  
+export { addDoctor, loginAdmin,allDoctors};
