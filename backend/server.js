@@ -26,6 +26,7 @@ app.use('/api/admin', adminRouter); // 🛡️ Admin routes
 app.use('/api/doctor', doctorRouter); // 👨‍⚕️ Doctor routes
 app.use('/api/user', userRouter); // 👤 User routes
 
+
 // 🏠 Root endpoint
 app.get('/', (req, res) => {
   res.send('🌟 Server is working');

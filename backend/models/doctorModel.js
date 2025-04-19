@@ -14,7 +14,7 @@ const doctorSchema = new mongoose.Schema(
     fees: { type: Number, required: true }, // Fixed "requried" typo
     address: { type: Object, required: true },
     date: { type: Date, required: true }, // Changed from Number to Date for better handling
-    slot_booked: { type: Map, of: Boolean, default: {} }, // Use Map for better key-value storage
+    slots_booked: { type: Map, of: Boolean, default: {} }, // Use Map for better key-value storage
   },
   { minimize: false }
 );

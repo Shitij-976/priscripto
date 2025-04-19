@@ -12,7 +12,7 @@ const AddDoctor = () => {
   const [experience, setExperience] = useState("1 Year");
   const [fees, setFees] = useState("");
   const [about, setAbout] = useState("");
-  const [speciality, setSpeciality] = useState("General Physician");
+  const [speciality, setSpeciality] = useState("General physician");
   const [degree, setDegree] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
@@ -62,7 +62,7 @@ const AddDoctor = () => {
         setExperience("1 Year");
         setFees("");
         setAbout("");
-        setSpeciality("General Physician");
+       
         setDegree("");
         setAddress1("");
         setAddress2("");
@@ -170,7 +170,7 @@ const AddDoctor = () => {
                 onChange={(e) => setSpeciality(e.target.value)}
                 value={speciality}
               >
-                <option value="General Physician">General Physician</option>
+                <option value="General physician">General physician</option>
                 <option value="Gynecologist">Gynecologist</option>
                 <option value="Dermatologist">Dermatologist</option>
                 <option value="Pediatricians">Pediatricians</option>

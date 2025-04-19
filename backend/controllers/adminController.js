@@ -122,12 +122,8 @@ const addDoctor = async (req, res) => {
       doctor: newDoctor,
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message }); 
   }
 };
 //api for admin login
@@ -147,12 +143,8 @@ const loginAdmin = async (req, res) => {
         .json({ success: false, message: "Invalid email or password" });
     }
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message }); 
   }
 };
 // ApI  to get all doctor list
@@ -165,12 +157,8 @@ const allDoctors = async (req, res) => {
       doctors,
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message }); 
   }
 };  
 export { addDoctor, loginAdmin,allDoctors};

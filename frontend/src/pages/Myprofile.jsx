@@ -1,24 +1,67 @@
-import React, { useState } from 'react'
-import { assets } from '../assets/assets'
+import React, { useContext, useState } from 'react'
+import { AppContext } from '../context/AppContext'
+import {assets} from '../assets/assets'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Myprofile = () => {
-    const [userData, setUserData] = useState({
-        name: 'edward',
-        image: assets.profile_pic,
-        email: 'abcd@gmail.com',
-        phone: '+91  1234567890',
-        address: {
-            line1: 'adrress1',
-            line2: 'address2'
-        },
-        gender: 'Male',
-        dob: '2003-11-03'
-
-    })
+    const {userData, setUserData,token,backendUrl,loadUserProfileData} = useContext(AppContext)
     const [isEdit, setIsEdit] = useState(false)
-    return (
+    const [image, setImage] = useState(false)
+
+    const  updateProfile = async () => {
+        try {
+            const formData = new FormData()
+            formData.append('name', userData.name)
+            formData.append('phone', userData.phone)
+            formData.append('address', JSON.stringify(userData.address))
+            formData.append('dob', userData.dob)
+            formData.append('gender',userData.gender)
+
+            image && formData.append('image', image)
+            const { data} = await axios.post(backendUrl +'/api/user/update-profile', formData, {headers:{token}})
+             if (data.success) { // Fix the typo
+              toast.success(data.message);
+              await loadUserProfileData();
+              setIsEdit(false);
+              setImage(false);
+            } else {
+              toast.error(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message)
+            
+        }
+    }
+    return userData && (
         <div className='max-w-lg flex flex-col gap-2 text-sm'>
-            <img className='w-36 rounded' src={userData.image} alt="" />
+            {
+                isEdit ? 
+                    <label htmlFor="image">
+                      <div className='inline-block cursor-pointer relative'>
+                        <img 
+                          src={image ? URL.createObjectURL(image) : userData.image}
+                          alt="Profile Preview"
+                          className="w-36 rounded opacity-75"
+                        />
+                        <img 
+                        src={image ? '' : assets.upload_icon} 
+                        alt="" 
+                        className="absolute w-10 bottom-12 right-12 "
+                        />
+                      </div>
+                      <input
+                        type="file"
+                        id="image"
+                        hidden
+                        onChange={(e) => setImage(e.target.files[0])} // Update the image state
+                      />
+                    </label>
+                   : 
+                    <img className="w-36 rounded" src={userData.image} alt="Profile" />
+                
+            }
             {
                 isEdit
                     ? <input className='bg-gray-50 text-3xl font-medium max-w-60 mt-4' type='text' value={userData.name} onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))} />
@@ -77,7 +120,7 @@ const Myprofile = () => {
             <div className='mt-10'>
                 {
                     isEdit
-                        ? <button className='border  px-8 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-500 ' onClick={() => setIsEdit(false)}>Save Information</button>//false
+                        ? <button className="border px-8 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-500" onClick={() => updateProfile()}>Save Information</button>
                         : <button className='border  px-8 py-3 rounded-full hover:bg-primary hover:text-white transition-all duration-500 ' onClick={() => setIsEdit(true)}>Edit</button>//true
                 }
             </div>

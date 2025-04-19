@@ -13,12 +13,8 @@ const changeAvailabilty = async (req, res) => {
       data: docData,
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message }); 
   }
 };
 
@@ -31,12 +27,8 @@ const doctorList = async (req, res) => {
       doctors,
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message }); 
   }
 };
 

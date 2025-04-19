@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import { v2 as cloudinary } from "cloudinary";
+import doctorModel from "../models/doctorModel.js";
+import appointmentModel from "../models/appointmentModel.js";
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -50,12 +52,8 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
 // api for user login
@@ -89,12 +87,8 @@ const loginUser = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -110,12 +104,8 @@ const getProfile = async (req, res) => {
       userData,
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
 //update user profile
@@ -129,12 +119,12 @@ const updateProfile = async (req, res) => {
         .json({ success: false, message: "Missing details" });
     }
     await userModel.findByIdAndUpdate(userId, {
-        name,
-        phone,
-        address: JSON.parse(address), // Fixed JSON.parse
-        dob,
-        gender,
-      });
+      name,
+      phone,
+      address: JSON.parse(address), // Fixed JSON.parse
+      dob,
+      gender,
+    });
     if (imageFile) {
       //upload image to cloudinary
       const imageUploader = await cloudinary.uploader.upload(imageFile, {
@@ -144,19 +134,66 @@ const updateProfile = async (req, res) => {
       await userModel.findByIdAndUpdate(userId, {
         image: imageURL,
       });
-        
     }
     res.json({
       success: true,
       message: " Profile updated successfully",
     });
   } catch (error) {
-    console.error("Error occurred:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message,
-    });
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
-export { registerUser, loginUser, getProfile, updateProfile};
+
+
+//API to book Appointment
+const bookAppointment = async (req, res) => {
+  try {
+      const { userId, docId, slotDate, slotTime } = req.body
+
+      // Check if the user already has an appointment at the same slot
+      const existingAppointment = await appointmentModel.findOne({ userId, slotDate, slotTime, cancelled: false })
+      if (existingAppointment) {
+          return res.json({ success: false, message: "You already have an appointment booked at this time" });
+      }
+
+      const docData = await doctorModel.findById(docId).select("-password")
+      if (!docData.available) {
+          return res.json({ success: false, message: "Doctor not available" })
+      }
+      let slots_booked = docData.slots_booked
+      // checking for slot available
+      if (slots_booked[slotDate]) {
+          if (slots_booked[slotDate].includes(slotTime)) {
+              return res.json({ success: false, message: "Slot not available" })
+          } else {
+              slots_booked[slotDate].push(slotTime)
+          }
+      } else {
+          slots_booked[slotDate] = []
+          slots_booked[slotDate].push(slotTime)
+      }
+
+      const userData = await userModel.findById(userId).select("-password")
+      delete docData.slots_booked
+      const appointmentData = {
+          userId,
+          docId,
+          userData,
+          docData,
+          amount: docData.fees,
+          slotTime,
+          slotDate,
+          date: Date.now()
+      }
+      const newappointment = new appointmentModel(appointmentData)
+      await newappointment.save()
+      // save new slot data in docData
+      await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+      res.json({ success: true, message: "Appointment booked" })
+  } catch (error) {
+      console.log(error);
+      res.json({ success: false, message: error.message });
+  }
+}
+export { registerUser, loginUser, getProfile, updateProfile,bookAppointment};
