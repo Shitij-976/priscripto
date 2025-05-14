@@ -3,19 +3,37 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Add this import at the top
+
+// Email and password regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 const Login = () => {
   const { backendUrl, token, setToken } = useContext(AppContext);
   const navigate = useNavigate();
-  // State variables for form fields
-  const [state, setState] = useState("Sign Up"); // Toggle between Sign Up and Login
+  const [state, setState] = useState("Sign Up");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Add this state
 
-  // Form submission handler (currently empty)
   const onsubmitHandler = async (event) => {
     event.preventDefault();
+
+    // Email format validation
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    // Password format validation
+    if (!passwordRegex.test(password)) {
+      toast.error(
+        "Password must be at least 8 characters, include uppercase, lowercase, number, and special character."
+      );
+      return;
+    }
+
     try {
       if (state === "Sign Up") {
         const { data } = await axios.post(backendUrl + "/api/user/register", {
@@ -26,10 +44,11 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
+          toast.success(data.message);
         } else {
           toast.error(data.message);
         }
-      }else{
+      } else {
         const { data } = await axios.post(backendUrl + "/api/user/login", {
           password,
           email,
@@ -37,6 +56,7 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem("token", data.token);
           setToken(data.token);
+          toast.success(data.message);
         } else {
           toast.error(data.message);
         }
@@ -45,14 +65,15 @@ const Login = () => {
       toast.error(error.message);
     }
   };
+
   useEffect(() => {
-if (token) {
-  navigate("/");
-}
-  },[token])
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
 
   return (
-    <form 
+    <form
       className="min-h-[80vh] flex items-center mt-6"
       onSubmit={onsubmitHandler}
     >
@@ -67,18 +88,18 @@ if (token) {
         </p>
 
         {/* Full Name field (only in Sign Up state) */}
-        {state === "Sign Up" && (
+        {state === "Sign Up" && 
           <div className="w-full">
             <p>Full Name</p>
             <input
               className="border border-zinc-300 rounded w-full p-2 mt-1"
               type="text"
-              onChange={(e) => setName(e.target.value)} // Fix: Change e.target.name → e.target.value
+              onChange={(e) => setName(e.target.value)}
               value={name}
               required
             />
           </div>
-        )}
+        }
 
         {/* Email field */}
         <div className="w-full">
@@ -86,22 +107,35 @@ if (token) {
           <input
             className="border border-zinc-300 rounded w-full p-2 mt-1"
             type="email"
-            onChange={(e) => setEmail(e.target.value)} // Fix: Change e.target.name → e.target.value
-            value={email} // Fix: Should bind with email, not name
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
             required
           />
+          <p className="text-xs text-zinc-400 mt-1">
+            Enter a valid email address (e.g., user@example.com)
+          </p>
         </div>
 
         {/* Password field */}
-        <div className="w-full">
+        <div className="w-full relative">
           <p>Password</p>
           <input
-            className="border border-zinc-300 rounded w-full p-2 mt-1"
-            type="password"
-            onChange={(e) => setPassword(e.target.value)} // Fix: Change e.target.name → e.target.value
-            value={password} // Fix: Should bind with password, not name
+            className="border border-zinc-300 rounded w-full p-2 mt-1 pr-10"
+            type={showPassword ? "text" : "password"}
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
             required
           />
+          <span
+            className="absolute right-3 top-9 cursor-pointer text-zinc-500"
+            onClick={() => setShowPassword((prev) => !prev)}
+            style={{ top: "42px" }} // Adjust if needed for your design
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </span>
+          <p className="text-xs text-zinc-400 mt-1">
+            Password must be at least 8 characters, include uppercase, lowercase, number, and special character.
+          </p>
         </div>
 
         {/* Submit button */}
@@ -113,7 +147,7 @@ if (token) {
         </button>
 
         {/* Toggle between Sign Up and Login */}
-        {state === "Sign Up" ? (
+        {state === "Sign Up" ? 
           <p>
             Already have an account?{" "}
             <span
@@ -123,7 +157,7 @@ if (token) {
               Login here
             </span>
           </p>
-        ) : (
+        : 
           <p>
             Create a new Account?{" "}
             <span
@@ -133,7 +167,7 @@ if (token) {
               Click here
             </span>
           </p>
-        )}
+        }
       </div>
     </form>
   );

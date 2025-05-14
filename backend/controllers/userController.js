@@ -26,7 +26,16 @@ const registerUser = async (req, res) => {
           message: "Password must be at least 8 characters long",
         });
     }
-    // hashing user password
+
+    // Check if user already exists
+    const existingUser = await userModel.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email already registered" });
+    }
+
+    // Hash user password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -38,12 +47,11 @@ const registerUser = async (req, res) => {
     const newUser = new userModel(userData);
     const user = await newUser.save();
 
-    //create token for user login
+    // Generate token for user login
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res.json({
       success: true,
       message: "User registered successfully",
-      password: hashedPassword,
       token,
       user: {
         name: user.name,
@@ -53,7 +61,7 @@ const registerUser = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 // api for user login
@@ -114,14 +122,12 @@ const updateProfile = async (req, res) => {
     const { userId, name, phone, address, dob, gender } = req.body;
     const imageFile = req.file ? req.file.path : null;
     if (!name || !phone || !dob || !gender) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing details" });
+      return res.status(400).json({ success: false, message: "Missing details" });
     }
     await userModel.findByIdAndUpdate(userId, {
       name,
       phone,
-      address: JSON.parse(address), // Fixed JSON.parse
+      address: JSON.parse(address),
       dob,
       gender,
     });
@@ -137,7 +143,7 @@ const updateProfile = async (req, res) => {
     }
     res.json({
       success: true,
-      message: " Profile updated successfully",
+      message: "Profile updated successfully",
     });
   } catch (error) {
     console.log(error);
@@ -196,4 +202,50 @@ const bookAppointment = async (req, res) => {
       res.json({ success: false, message: error.message });
   }
 }
-export { registerUser, loginUser, getProfile, updateProfile,bookAppointment};
+
+//api to get user appointments in my-appointment page
+const listAppointment = async (req, res) => {
+    try{
+        const { userId } = req.body
+        const appointments = await appointmentModel.find({userId})
+
+        res.json({succes:true,appointments})
+
+    }catch(error){
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+//cancel appointment
+const cancelAppointment = async (req,res) => {
+    try {
+const {userId, appointmentId} = req.body
+const appointmentData = await appointmentModel.findById(appointmentId)
+  // verify appointmert
+if (appointmentData.userId !== userId) {
+    return res.json({ success: false, message: "You are not authorized to cancel this appointment" });
+  }
+  await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled:true})
+  //releasing doctor slot
+  const {docId, slotDate, slotTime} = appointmentData
+  const doctorDdata = await doctorModel.findById(docId)
+  let slots_booked = doctorDdata.slots_booked
+
+  if (Array.isArray(slots_booked[slotDate])) {
+    slots_booked[slotDate] = slots_booked[slotDate].filter((e) => e !== slotTime)
+  } else {
+    // If the slotDate does not exist, just set it to an empty array
+    slots_booked[slotDate] = []
+  }
+  await doctorModel.findByIdAndUpdate(docId, {slots_booked})
+    res.json({ success: true, message: "Appointment cancelled successfully" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+//api to make payment using razor pay
+const razorpayment = async (req, res) => {
+
+}
+export { registerUser, loginUser, getProfile, updateProfile,bookAppointment, listAppointment, cancelAppointment };
