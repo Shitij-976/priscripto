@@ -3,6 +3,31 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
+import appointmentModel from "../models/appointmentModel.js";
+
+const getLocalImageUrl = (req, imageFile) =>
+  `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
+
+const uploadDoctorImage = async (req, imageFile) => {
+  const isCloudinaryConfigured =
+    process.env.CLOUDINARY_NAME &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_SECRET_KEY;
+
+  if (!isCloudinaryConfigured) {
+    return getLocalImageUrl(req, imageFile);
+  }
+
+  try {
+    const imageUploader = await cloudinary.uploader.upload(imageFile.path, {
+      resource_type: "image",
+    });
+    return imageUploader.secure_url;
+  } catch (error) {
+    console.warn("Cloudinary upload failed, using local image:", error.message);
+    return getLocalImageUrl(req, imageFile);
+  }
+};
 
 const addDoctor = async (req, res) => {
   try {
@@ -19,10 +44,6 @@ const addDoctor = async (req, res) => {
     } = req.body;
 
     const imageFile = req.file;
-
-    // Debugging: Log the request body and file
-    console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file);
 
     // Validate required fields
     if (
@@ -78,11 +99,7 @@ const addDoctor = async (req, res) => {
         .json({ success: false, message: "Image file is required" });
     }
 
-    // Upload image to Cloudinary
-    const imageUploader = await cloudinary.uploader.upload(imageFile.path, {
-      resource_type: "image",
-    });
-    const imageUrl = imageUploader.secure_url;
+    const imageUrl = await uploadDoctorImage(req, imageFile);
 
     // Parse address if it's a JSON string
     let parsedAddress;
@@ -106,7 +123,7 @@ const addDoctor = async (req, res) => {
       degree,
       experience,
       about,
-      fees,
+      fees: Number(fees),
       address: parsedAddress,
       date: Date.now(),
     };
@@ -123,15 +140,18 @@ const addDoctor = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message }); 
+    res.json({ success: false, message: error.message });
   }
 };
 //api for admin login
 const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (email === process.env.ADMIN_EMAIL &&password === process.env.ADMIN_PASSWORD) {
-      const token = jwt.sign(email+password, process.env.JWT_SECRET)
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = jwt.sign(email + password, process.env.JWT_SECRET);
       res.status(200).json({
         success: true,
         message: "Login successful",
@@ -144,13 +164,13 @@ const loginAdmin = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message }); 
+    res.json({ success: false, message: error.message });
   }
 };
 // ApI  to get all doctor list
 const allDoctors = async (req, res) => {
   try {
-    const doctors = await doctorModel.find({}).select( '-password' );
+    const doctors = await doctorModel.find({}).select("-password");
     res.status(200).json({
       success: true,
       message: "Doctor list fetched successfully",
@@ -158,7 +178,18 @@ const allDoctors = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message }); 
+    res.json({ success: false, message: error.message });
   }
-};  
-export { addDoctor, loginAdmin,allDoctors};
+};
+
+//api to get all doctor
+const appointmentsadmin = async (req, res) => {
+  try {
+    const appointments = await appointmentModel.find({})
+    res.json({success:true, appointments})
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+}
+export { addDoctor, loginAdmin, allDoctors, appointmentsadmin};

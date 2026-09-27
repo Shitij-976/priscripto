@@ -16,7 +16,7 @@ const AddDoctor = () => {
   const [degree, setDegree] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
-  const { backendUrl, aToken } = useContext(AdminContext);
+  const { backendUrl, aToken, getAllDoctors } = useContext(AdminContext);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -54,6 +54,7 @@ const AddDoctor = () => {
 
       if (data.success) {
         toast.success(data.message);
+        getAllDoctors();
         // Clear form fields after successful submission
         setDocImg(false);
         setName("");

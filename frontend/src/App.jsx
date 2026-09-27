@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import Doctors from "./pages/Doctors";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import MyProfile from "./pages/MyProfile";
+import MyProfile from "./pages/Myprofile";
 import MyAppointments from "./pages/MyAppointments";
 import Appointment from "./pages/Appointment";
 import Navbar from "./components/Navbar";

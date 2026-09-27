@@ -2,6 +2,7 @@ import { createContext, useState } from "react";
 import axios from "axios"; // Fixed import
 import { toast } from "react-toastify";
 
+
 // Create context
 export const AdminContext = createContext();
 
@@ -10,6 +11,7 @@ const AdminContextProvider = (props) => {
     localStorage.getItem("aToken") ? localStorage.getItem("aToken") : ""
   );
   const [doctors, setDoctors] = useState([]);
+  const [appointments, setAppointments] = useState([]);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const getAllDoctors = async () => {
@@ -25,7 +27,9 @@ const AdminContextProvider = (props) => {
       } else {
         toast.error(data.message);
       }
-    } catch (error) {}
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
   };
   const changeAvailability = async (docId) => {
     try {
@@ -41,9 +45,26 @@ const AdminContextProvider = (props) => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error(data.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
+  const getAllAppointments = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/appointments",
+        {},
+        { headers: { aToken } }
+      );
+      if (data.success) {
+        setAppointments(data.appointments);
+        console.log(data.appointments); // <-- Should log appointments
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch appointments");
+    }
+  }
 
   const value = {
     aToken,
@@ -52,6 +73,8 @@ const AdminContextProvider = (props) => {
     doctors,
     getAllDoctors,
     changeAvailability,
+    appointments,setAppointments,
+    getAllAppointments,
   };
 
   return (
