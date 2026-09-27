@@ -13,19 +13,18 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 // 🔗 Connect to DB and Cloudinary
-connectDB(); // ✅ MongoDB connected
-connectCloudinary(); // ☁️ Cloudinary connected
+connectDB();
+connectCloudinary();
 
 // 🛠️ Middleware
-app.use(express.json()); // 📦 Parse JSON
-app.use(cors()); // 🌍 Enable CORS
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'))); // 📂 Serve uploaded files
+app.use(express.json());
+app.use(cors());
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // 🚀 API endpoints
-app.use('/api/admin', adminRouter); // 🛡️ Admin routes
-app.use('/api/doctor', doctorRouter); // 👨‍⚕️ Doctor routes
-app.use('/api/user', userRouter); // 👤 User routes
-
+app.use('/api/admin', adminRouter);
+app.use('/api/doctor', doctorRouter);
+app.use('/api/user', userRouter);
 
 // 🏠 Root endpoint
 app.get('/', (req, res) => {
@@ -38,9 +37,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });
 
-// 🚀 Start server
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => console.log(`✅ Server started on port ${port} 🚀`));
-}
+// 🚀 Start server (Render + Localhost)
+app.listen(port, '0.0.0.0', () => {
+  console.log(`✅ Server started on port ${port} 🚀`);
+});
 
 export default app;
