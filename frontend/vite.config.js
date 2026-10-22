@@ -9,6 +9,6 @@ export default defineConfig({
   },
   preview: {
     host: '0.0.0.0',
-    allowedHosts: ['priscripto-2.onrender.com']
+    allowedHosts: ['priscripto-f2dc.onrender.com']
   }
 })
