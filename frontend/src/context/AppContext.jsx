@@ -2,20 +2,29 @@ import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// Global Application Context for sharing states across components
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
   const currencySymbol = "$";
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; // Correct backend URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  // Global state variables
   const [doctors, setDoctors] = useState([]);
   const [token, setToken] = useState(
     localStorage.getItem("token") ? localStorage.getItem("token") : false
-  ); // Initialize token from local storage]);
+  );
   const [userData, setUserData] = useState(false);
 
+  // Global search query state used by Navbar and Doctors filtering
+  const [search, setSearch] = useState("");
+
+  /**
+   * Fetch list of all approved doctors from backend API
+   */
   const getDoctorsData = async () => {
     try {
-      const { data } = await axios.get(backendUrl + "/api/doctor/list"); // Use backendUrl
+      const { data } = await axios.get(backendUrl + "/api/doctor/list");
       if (data.success) {
         setDoctors(data.doctors);
       } else {
@@ -25,13 +34,16 @@ const AppContextProvider = (props) => {
       console.error("Error fetching doctors:", error.message);
       toast.error(error.message);
     }
+  };
 
-  }
+  /**
+   * Fetch authenticated user profile data
+   */
   const loadUserProfileData = async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/user/get-profile", {
         headers: { token },
-      })
+      });
       if (data.success) {
         setUserData(data.userData);
       } else {
@@ -43,8 +55,10 @@ const AppContextProvider = (props) => {
     }
   };
 
+  // Shared values accessible by any consumer component
   const value = {
-    doctors,getDoctorsData,
+    doctors,
+    getDoctorsData,
     currencySymbol,
     token,
     setToken,
@@ -52,7 +66,11 @@ const AppContextProvider = (props) => {
     userData,
     setUserData,
     loadUserProfileData,
+    search,
+    setSearch, // Expose search state & updater globally
   };
+
+  // Load user profile whenever authentication token updates
   useEffect(() => {
     if (token) {
       loadUserProfileData();
@@ -61,6 +79,7 @@ const AppContextProvider = (props) => {
     }
   }, [token]);
 
+  // Initial fetch of doctors list on app mount
   useEffect(() => {
     getDoctorsData();
   }, []);
