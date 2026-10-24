@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 export const AppContext = createContext();
 
 const AppContextProvider = (props) => {
-  const currencySymbol = "$";
+  const currencySymbol = "₹"; // Indian Rupee symbol
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   // Global state variables

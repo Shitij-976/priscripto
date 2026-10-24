@@ -5,8 +5,8 @@ import { FiSearch, FiX, FiFilter } from 'react-icons/fi'
 
 /**
  * Doctors Page Component:
- * - Lists available doctors with comprehensive filtering & sorting capabilities
- * - Supports Specialty filter (URL /doctors/:speciality), global keyword search, availability toggle, and sorting
+ * - Lists doctors with search and specialty filtering capabilities
+ * - Supports Specialty filter (URL /doctors/:speciality), global keyword search, and availability toggle
  * - Displays active filter chips with 1-click removal & reset
  * - Handles empty states and dynamic availability badges
  */
@@ -18,7 +18,6 @@ const Doctors = () => {
     const [filterDoc, setFilterDoc] = useState([])
     const [showFilter, setShowFilter] = useState(false)
     const [availableOnly, setAvailableOnly] = useState(false)
-    const [sortBy, setSortBy] = useState('default')
     const navigate = useNavigate()
 
     // Consume global application context
@@ -35,11 +34,10 @@ const Doctors = () => {
     ]
 
     /**
-     * Unified Filtering and Sorting Pipeline:
+     * Unified Filtering Pipeline:
      * 1. Filters by specialty (if URL parameter is provided)
      * 2. Filters by keyword search (matches name, specialty, degree, about bio, address)
      * 3. Filters by availability flag (if 'Available Only' toggle is enabled)
-     * 4. Applies selected sort order (fees ascending/descending, experience descending)
      */
     const applyFilter = () => {
         let result = doctors ? [...doctors] : []
@@ -71,27 +69,14 @@ const Doctors = () => {
             result = result.filter(doc => doc.available === true)
         }
 
-        // Step 4: Sorting Logic
-        if (sortBy === 'fees-low') {
-            result.sort((a, b) => Number(a.fees || 0) - Number(b.fees || 0))
-        } else if (sortBy === 'fees-high') {
-            result.sort((a, b) => Number(b.fees || 0) - Number(a.fees || 0))
-        } else if (sortBy === 'experience') {
-            result.sort((a, b) => {
-                const expA = parseInt(a.experience) || 0
-                const expB = parseInt(b.experience) || 0
-                return expB - expA
-            })
-        }
-
         // Update filtered results
         setFilterDoc(result)
     }
 
-    // Re-run filter pipeline whenever any dependent parameter changes
+    // Re-run filter pipeline whenever doctors list, specialty, search, or availability changes
     useEffect(() => {
         applyFilter()
-    }, [doctors, speciality, search, availableOnly, sortBy])
+    }, [doctors, speciality, search, availableOnly])
 
     /**
      * Clear all active filters and return to default state
@@ -99,44 +84,30 @@ const Doctors = () => {
     const resetAllFilters = () => {
         setSearch('')
         setAvailableOnly(false)
-        setSortBy('default')
         navigate('/doctors')
     }
 
     // Check if any filter or search query is currently active
-    const hasActiveFilters = Boolean(speciality || search.trim() || availableOnly || sortBy !== 'default')
+    const hasActiveFilters = Boolean(speciality || search.trim() || availableOnly)
 
     return (
         <div className='pb-10'>
-            {/* Header info & Sorting Controls */}
+            {/* Header info & Mobile Filter Button */}
             <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3'>
                 <div>
                     <h1 className='text-xl sm:text-2xl font-semibold text-gray-800'>Find Doctors</h1>
                     <p className='text-gray-500 text-sm mt-0.5'>Browse through our experienced doctors and specialists.</p>
                 </div>
 
-                {/* Sort Dropdown & Mobile Filter Toggle */}
-                <div className='flex items-center gap-3'>
-                    <select 
-                        value={sortBy} 
-                        onChange={(e) => setSortBy(e.target.value)}
-                        className='text-xs sm:text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white text-gray-700 outline-none hover:border-primary focus:border-primary transition'
-                    >
-                        <option value="default">Sort by: Recommended</option>
-                        <option value="fees-low">Fees: Low to High</option>
-                        <option value="fees-high">Fees: High to Low</option>
-                        <option value="experience">Experience: High to Low</option>
-                    </select>
-
-                    <button
-                        className={`sm:hidden py-1.5 px-3 flex items-center gap-1.5 border rounded-lg text-xs font-medium transition-all ${
-                            showFilter ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300'
-                        }`}
-                        onClick={() => setShowFilter(prev => !prev)}
-                    >
-                        <FiFilter /> Filters
-                    </button>
-                </div>
+                {/* Mobile Filter Toggle Button */}
+                <button
+                    className={`sm:hidden py-1.5 px-3 self-start flex items-center gap-1.5 border rounded-lg text-xs font-medium transition-all ${
+                        showFilter ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700 border-gray-300'
+                    }`}
+                    onClick={() => setShowFilter(prev => !prev)}
+                >
+                    <FiFilter /> Filters
+                </button>
             </div>
 
             {/* Active Filter Tags / Chips Bar */}
@@ -169,16 +140,6 @@ const Doctors = () => {
                         <span className='inline-flex items-center gap-1.5 bg-white text-green-700 border border-green-300 text-xs px-2.5 py-1 rounded-full shadow-sm'>
                             Available Only
                             <button onClick={() => setAvailableOnly(false)} className='hover:text-red-500' aria-label="Clear availability filter">
-                                <FiX className='text-xs' />
-                            </button>
-                        </span>
-                    )}
-
-                    {/* Active Sort Order Chip */}
-                    {sortBy !== 'default' && (
-                        <span className='inline-flex items-center gap-1.5 bg-white text-gray-700 border border-gray-300 text-xs px-2.5 py-1 rounded-full shadow-sm'>
-                            Sorted
-                            <button onClick={() => setSortBy('default')} className='hover:text-red-500' aria-label="Reset sort">
                                 <FiX className='text-xs' />
                             </button>
                         </span>
