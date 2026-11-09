@@ -24,7 +24,7 @@ const Dashboard = () => {
       {/* Top 3 Stat Cards */}
       <div className='flex flex-wrap gap-4'>
         {/* Doctors Card */}
-        <div className='flex items-center gap-3 bg-white p-4 min-w-56 rounded-xl border border-gray-100 cursor-pointer hover:scale-105 transition-all shadow-sm'>
+        <div className='flex items-center gap-3 bg-white p-4 min-w-56 rounded-xl border border-gray-200 cursor-pointer'>
           <img className='w-14' src={assets.doctor_icon} alt="Doctors" />
           <div>
             <p className='text-xl font-semibold text-gray-700'>{doctors ? doctors.length : 0}</p>
@@ -33,7 +33,7 @@ const Dashboard = () => {
         </div>
 
         {/* Appointments Card */}
-        <div className='flex items-center gap-3 bg-white p-4 min-w-56 rounded-xl border border-gray-100 cursor-pointer hover:scale-105 transition-all shadow-sm'>
+        <div className='flex items-center gap-3 bg-white p-4 min-w-56 rounded-xl border border-gray-200 cursor-pointer'>
           <img className='w-14' src={assets.appointments_icon} alt="Appointments" />
           <div>
             <p className='text-xl font-semibold text-gray-700'>{appointments ? appointments.length : 0}</p>
@@ -42,7 +42,7 @@ const Dashboard = () => {
         </div>
 
         {/* Patients Card */}
-        <div className='flex items-center gap-3 bg-white p-4 min-w-56 rounded-xl border border-gray-100 cursor-pointer hover:scale-105 transition-all shadow-sm'>
+        <div className='flex items-center gap-3 bg-white p-4 min-w-56 rounded-xl border border-gray-200 cursor-pointer'>
           <img className='w-14' src={assets.patients_icon} alt="Patients" />
           <div>
             <p className='text-xl font-semibold text-gray-700'>{uniquePatientsCount}</p>
@@ -52,7 +52,7 @@ const Dashboard = () => {
       </div>
 
       {/* Latest Appointment Section */}
-      <div className='bg-white mt-10 rounded-xl border border-gray-100 shadow-sm max-w-2xl'>
+      <div className='bg-white mt-10 rounded-xl border border-gray-200 shadow-sm max-w-2xl'>
         {/* Header */}
         <div className='flex items-center gap-2.5 px-6 py-4 border-b border-gray-100'>
           <img className='w-5' src={assets.list_icon} alt="" />
