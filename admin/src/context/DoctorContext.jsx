@@ -1,19 +1,24 @@
-import { createContext } from "react";
+import { createContext, useState } from "react";
 
-// Create context
-export const DoctorContext = createContext()
+export const DoctorContext = createContext();
 
 const DoctorContextProvider = (props) => {
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [dToken, setDToken] = useState(
+    localStorage.getItem("dToken") ? localStorage.getItem("dToken") : ""
+  );
+
   const value = {
-    // Add any values you want to pass via context here
-  }
+    dToken,
+    setDToken,
+    backendUrl,
+  };
 
   return (
-    // Use the correct Provider component
     <DoctorContext.Provider value={value}>
       {props.children}
     </DoctorContext.Provider>
-  )
-}
+  );
+};
 
-export default DoctorContextProvider
+export default DoctorContextProvider;
