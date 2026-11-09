@@ -1,0 +1,109 @@
+================================================================================
+                    PRESCRIPTO - TODAY'S WORK SUMMARY
+                         Date: 09-10 November 2026
+================================================================================
+
+--------------------------------------------------------------------------------
+PART 1: ERROR EXPLANATION
+--------------------------------------------------------------------------------
+Q: "app crashed - waiting for file changes before starting.. kya mtlb hota hai?"
+
+Ans:
+Yeh message nodemon ka hota hai. Jab Node.js server chalte waqt kisi error ki
+wajah se band (crash) ho jaata hai, tab nodemon yeh message deta hai.
+Sabse aam wajah:
+1. Port Conflict (EADDRINUSE :::4000):
+   Port 4000 pe pehle se koi process chal raha tha aur naya server usi port pe
+   start hone ki koshish kar raha tha.
+2. Runtime Error / Crash:
+   Code run hote waqt koi unhandled error aane par server ruk jaata hai.
+
+"Waiting for file changes" ka matlab hai ki nodemon ruk gaya hai aur wait kar
+raha hai ki aap kisi file me changes save karein ya terminal me 'rs' likhkar
+Enter karein taaki wo server ko restart kar sake.
+(Background process stop kar diya gaya hai, ab aap terminal me 'npm run server'
+run kar sakte hain).
+
+
+--------------------------------------------------------------------------------
+PART 2: AAJ JO KIYA GAYA, KONSE FILE ME KIYA, AUR FILE LOCATION
+--------------------------------------------------------------------------------
+
+1. Doctor Delete Feature (Backend Controller)
+   - Kya kiya: Doctor ko database se delete karne ka controller function banaya.
+   - File: adminController.js
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\adminController.js
+
+2. Doctor Delete Route (Backend Route)
+   - Kya kiya: POST /api/admin/delete-doctor endpoint create aur register kiya.
+   - File: adminRoute.js
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\adminRoute.js
+
+3. Admin Context - Delete Doctor & Appointments Reverse
+   - Kya kiya: deleteDoctor() context function banaya aur appointments ko reverse kiya taaki naye bookings sabse upar aayein.
+   - File: AdminContext.jsx
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\context\AdminContext.jsx
+
+4. Doctor Delete UI Button
+   - Kya kiya: Doctor card ke top-left pe red circular cross button lagaya delete confirm dialog ke saath.
+   - File: DoctorList.jsx
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\DoctorList.jsx
+
+5. Admin Dashboard UI
+   - Kya kiya: Top 3 stat cards (Doctors, Appointments, Patients) aur Latest Appointments list with cancel action banaya.
+   - File: Dashboard.jsx
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\Dashboard.jsx
+
+6. User Sign-up Auto-Login Fix
+   - Kya kiya: Sign-up hone par direct token save karne ke bajaye success toast dekar user ko Login mode par switch kiya.
+   - File: Login.jsx (Frontend)
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Login.jsx
+
+7. Doctor Login, Dashboard & Action APIs (Backend)
+   - Kya kiya: loginDoctor (bcrypt compare + JWT), doctorDashboard (live stats), appointmentsDoctor, appointmentCancel (slot release ke saath), aur appointmentComplete banaye.
+   - File: doctorController.js
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\doctorController.js
+
+8. Doctor Routes Registration (Backend)
+   - Kya kiya: /login, /dashboard, /appointments, /cancel-appointment, /complete-appointment routes register kiye.
+   - File: doctorRoute.js
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\doctorRoute.js
+
+9. Doctor Authentication Middleware
+   - Kya kiya: dtoken header verify karke doctor ki id request me attach karne wala middleware banaya.
+   - File: authDoctor.js
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\middlewares\authDoctor.js
+
+10. Admin / Doctor Login Switch & Token Isolation
+    - Kya kiya: Doctor login support add kiya aur role switch hone par opposite role ka token localStorage se clean kiya.
+    - File: Login.jsx (Admin Panel)
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Login.jsx
+
+11. Doctor Context & State Management
+    - Kya kiya: dToken, dashData, getDashData(), appointments, getAppointments(), cancelAppointment(), completeAppointment() context me banaye.
+    - File: DoctorContext.jsx
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\context\DoctorContext.jsx
+
+12. Doctor Navbar & Sidebar Navigation
+    - Kya kiya: Doctor ke liye Sidebar links (Dashboard, Appointments, Profile) aur Navbar me Doctor badge add kiya.
+    - Files: Navbar.jsx & Sidebar.jsx
+    - Locations:
+      c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\components\Navbar.jsx
+      c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\components\Sidebar.jsx
+
+13. Doctor Routes Routing in Admin App
+    - Kya kiya: Doctor panel ke routes (/doctor-dashboard, /doctor-appointments, /doctor-profile) mount kiye.
+    - File: App.jsx (Admin Panel)
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\App.jsx
+
+14. Doctor Dashboard UI & Real Database Integration
+    - Kya kiya: Top 3 Stat Cards (Earnings, Appointments, Patients) aur Latest Bookings list with live MongoDB appointments, patient avatars, cancel & complete action buttons.
+    - File: DoctorDashboard.jsx
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Doctor\DoctorDashboard.jsx
+
+15. Doctor Appointments Table
+    - Kya kiya: Doctor ki actual appointments table (Patient, Payment badge, Age, Date/Time, Fees, Cancel/Complete actions) ready ki.
+    - File: DoctorAppointments.jsx
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Doctor\DoctorAppointments.jsx
+
+================================================================================

@@ -1,0 +1,220 @@
+================================================================================
+           PRESCRIPTO - COMPLETE PROJECT WORK HISTORY & ARCHITECTURE
+                   Full Log: From Project Start to Current Date
+================================================================================
+
+PROJECT STRUCTURE OVERVIEW:
+--------------------------------------------------------------------------------
+The project consists of three main applications in a single repository:
+1. frontend/  -> Patient-facing React + Vite web application.
+2. admin/     -> Admin & Doctor panel React + Vite web application.
+3. backend/   -> Node.js + Express + MongoDB REST API backend.
+
+================================================================================
+SECTION 1: WORK DONE BEFORE TODAY (PHASE 1 TO PHASE 4)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. FRONTEND APPLICATION (PATIENT PORTAL)
+--------------------------------------------------------------------------------
+
+A. Authentication & User Profile:
+   - User Registration & Login:
+     * User can sign up with Name, Email, Password.
+     * Login authenticates with JWT and stores auth token in localStorage.
+     * File: Login.jsx
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Login.jsx
+   - User Profile Management:
+     * View and edit user details (Name, Phone, Address Line 1/2, Gender, DOB).
+     * Profile picture upload to Cloudinary.
+     * File: Myprofile.jsx
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Myprofile.jsx
+
+B. Doctor Discovery & Browsing:
+   - Doctors List Page:
+     * Shows all doctors with speciality filter sidebar (General Physician, Gynecologist, Dermatologist, Pediatricians, Neurologist, Gastroenterologist).
+     * Responsive filter menu for mobile and desktop.
+     * File: Doctors.jsx
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Doctors.jsx
+   - Doctor Availability Live Indicator:
+     * Added dynamic "Available" (green dot) / "Not Available" badge across all doctor cards.
+     * Dynamically updates whenever admin toggles doctor availability.
+     * Files: TopDoctor.jsx, RealtedDoctors.jsx, Doctors.jsx
+     * Locations:
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\components\TopDoctor.jsx
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\components\RealtedDoctors.jsx
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Doctors.jsx
+   - Global Navbar Search:
+     * Added search bar in Navbar to find doctors quickly by name or speciality.
+     * File: Navbar.jsx
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\components\Navbar.jsx
+
+C. Appointment Booking & Management:
+   - Doctor Detail & Slot Booking Page:
+     * Doctor profile info, experience, degree, about, appointment fee.
+     * 7-day slot date selector and time slot selector (morning to evening).
+     * Handles slot collisions with slots_booked from database.
+     * Related Doctors recommendation carousel below.
+     * File: Appointment.jsx
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Appointment.jsx
+   - My Appointments Page:
+     * Patient's booked appointments with doctor info, date, time slot, and amount.
+     * Cancel appointment feature (releases slot for other patients).
+     * Razorpay online payment integration to pay fees online.
+     * File: MyAppointment.jsx / MyAppointments.jsx
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\MyAppointments.jsx
+
+D. Informational Pages:
+   - Home Page: Header banner, Speciality menu, Top doctors grid, Call-to-action banner, Footer.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Home.jsx
+   - About Page: Information about Prescripto and "Why Choose Us" cards.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\About.jsx
+   - Contact Page: Office address, phone, email, careers section.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Contact.jsx
+
+E. Frontend State Management:
+   - AppContext:
+     * Global state for doctors list, currency symbol (₹), user token, slot date helpers.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\context\AppContext.jsx
+
+
+--------------------------------------------------------------------------------
+2. BACKEND API & DATABASE (CORE BACKEND)
+--------------------------------------------------------------------------------
+
+A. Database Models (MongoDB via Mongoose):
+   - Doctor Model: Name, email, password (hashed), image, speciality, degree, experience, about, available, fees, address, date, slots_booked.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\models\doctorModel.js
+   - User Model: Name, email, password, image, address, gender, dob, phone.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\models\userModel.js
+   - Appointment Model: userId, docId, slotDate, slotTime, userData, docData, amount, date, cancelled, payment, isCompleted.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\models\appointmentModel.js
+
+B. Middlewares:
+   - authAdmin.js: Verifies admin token created from ADMIN_EMAIL + ADMIN_PASSWORD.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\middlewares\authAdmin.js
+   - authUser.js: Verifies patient user JWT token.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\middlewares\authUser.js
+   - multer.js: File upload middleware for doctor & user profile pictures.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\middlewares\multer.js
+
+C. Controllers & Endpoints:
+   - userController.js & userRoute.js:
+     * POST /api/user/register: Register new user with bcrypt password hash.
+     * POST /api/user/login: User login with JWT generation.
+     * GET /api/user/get-profile: Get user profile details.
+     * POST /api/user/update-profile: Update user profile and Cloudinary image.
+     * POST /api/user/book-appointment: Book slot, verify availability, save booking.
+     * GET /api/user/appointments: List user's booked appointments.
+     * POST /api/user/cancel-appointment: Cancel appointment and release booked slot.
+     * POST /api/user/payment-razorpay: Create Razorpay payment order.
+     * POST /api/user/verifyRazorpay: Verify payment signature and mark appointment paid.
+     * Locations:
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\userController.js
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\userRoute.js
+
+   - adminController.js & adminRoute.js:
+     * POST /api/admin/login: Authenticate admin credentials.
+     * POST /api/admin/add-doctor: Validates input, hashes password, uploads image, saves doctor.
+     * POST /api/admin/all-doctors: List all doctors with non-sensitive fields.
+     * POST /api/admin/change-availabilty: Toggle doctor available status.
+     * GET /api/admin/appointments: Get all appointments for admin review.
+     * Locations:
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\adminController.js
+       c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\adminRoute.js
+
+
+--------------------------------------------------------------------------------
+3. ADMIN PANEL (ORIGINAL ADMIN FEATURES)
+--------------------------------------------------------------------------------
+
+A. Pages:
+   - Add Doctor: Form to add new doctor with picture upload, speciality, fees, etc.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\AddDoctor.jsx
+   - Doctors List: Grid of all registered doctors with availability toggle.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\DoctorList.jsx
+   - All Appointments: Table of all patient bookings across all doctors with cancel action.
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\AllAppointment.jsx
+
+B. Context:
+   - AdminContext.jsx: Manages aToken, doctors, appointments, getAllDoctors(), getAllAppointments(), changeAvailability().
+     * Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\context\AdminContext.jsx
+
+
+================================================================================
+SECTION 2: WORK DONE TODAY (09-10 NOVEMBER 2026)
+================================================================================
+
+1. Doctor Delete Feature (Backend API)
+   - Function: deleteDoctor in adminController.js
+   - Endpoint: POST /api/admin/delete-doctor in adminRoute.js
+   - Locations:
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\adminController.js
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\adminRoute.js
+
+2. Doctor Delete Integration in Admin App
+   - deleteDoctor() added to AdminContext.jsx.
+   - Circular red cross button added to top-left of each doctor card in DoctorList.jsx.
+   - Locations:
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\context\AdminContext.jsx
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\DoctorList.jsx
+
+3. Admin Appointments Reverse Ordering
+   - Reversed appointments list on fetch so newly booked appointments appear first at the top.
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\context\AdminContext.jsx
+
+4. Admin Dashboard UI
+   - Built full Admin Dashboard with 3 Stat Cards (Doctors, Appointments, Patients) and "Latest Appointment" list with cancel buttons.
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Admin\Dashboard.jsx
+
+5. User Registration Auto-Login Fix
+   - Removed automatic login on account registration in frontend; now shows success toast and switches to Login mode.
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\frontend\src\pages\Login.jsx
+
+6. Doctor Login Authentication Flow
+   - Backend loginDoctor controller (verifies bcrypt password hash and generates JWT).
+   - Middleware authDoctor.js for protecting doctor routes.
+   - Connected admin/src/pages/Login.jsx for doctor login.
+   - Cleaned up opposite tokens on login switch to prevent role collision.
+   - Locations:
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\doctorController.js
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\doctorRoute.js
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\middlewares\authDoctor.js
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Login.jsx
+
+7. Doctor Navigation & Panel Setup
+   - Sidebar.jsx updated to display Doctor links: /doctor-dashboard, /doctor-appointments, /doctor-profile.
+   - Navbar.jsx updated with dynamic "Admin" / "Doctor" badge.
+   - App.jsx routes mounted for doctor pages.
+   - Locations:
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\components\Navbar.jsx
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\components\Sidebar.jsx
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\App.jsx
+
+8. Doctor Dashboard & Action Endpoints (Backend)
+   - doctorDashboard: Calculates doctor-specific live stats (Earnings, Total Appointments, Unique Patients, Latest 5 Bookings).
+   - appointmentsDoctor: Fetches all appointments for logged-in doctor.
+   - appointmentCancel: Doctor cancels appointment and releases booked slot.
+   - appointmentComplete: Doctor marks appointment completed (adds to earnings).
+   - Locations:
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\controllers\doctorController.js
+     c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\backend\routes\doctorRoute.js
+
+9. Doctor State Management (DoctorContext)
+   - State for dToken, dashData, appointments.
+   - Methods: getDashData(), getAppointments(), completeAppointment(), cancelAppointment().
+   - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\context\DoctorContext.jsx
+
+10. Doctor Dashboard UI (Pixel-Perfect + Live DB Data)
+    - 3 Top Stat Cards: Earnings ($/₹), Appointments, Patients with responsive hover effect.
+    - Latest Bookings container: Patient avatar, patient name, formatted booking date, Cancel & Complete action buttons, and Cancelled/Completed status badges.
+    - Replaced dummy data with live MongoDB doctor data.
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Doctor\DoctorDashboard.jsx
+
+11. Doctor Appointments Table
+    - Created Doctor Appointments list page displaying real doctor appointments table with Patient, Payment status badge, Age, Date/Time, Fees, Cancel & Complete actions.
+    - Location: c:\Users\Admin\OneDrive\Desktop\Projects\priscripto\admin\src\pages\Doctor\DoctorAppointments.jsx
+
+================================================================================
+                          END OF SUMMARY FILE
+================================================================================
