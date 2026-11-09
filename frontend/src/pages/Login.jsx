@@ -3,7 +3,7 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; // Add this import at the top
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 // Email and password regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -16,7 +16,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // Add this state
+  const [showPassword, setShowPassword] = useState(false);
 
   const onsubmitHandler = async (event) => {
     event.preventDefault();
@@ -42,9 +42,9 @@ const Login = () => {
           email,
         });
         if (data.success) {
-          localStorage.setItem("token", data.token);
-          setToken(data.token);
-          toast.success(data.message);
+          toast.success("Account created successfully! Please log in.");
+          setState("Login");
+          setPassword("");
         } else {
           toast.error(data.message);
         }
@@ -131,7 +131,7 @@ const Login = () => {
           <span
             className="absolute right-3 top-9 cursor-pointer text-zinc-500"
             onClick={() => setShowPassword((prev) => !prev)}
-            style={{ top: "42px" }} // Adjust if needed for your design
+            style={{ top: "42px" }}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
