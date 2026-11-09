@@ -55,7 +55,7 @@ const AdminContextProvider = (props) => {
         { headers: { aToken } }
       );
       if (data.success) {
-        setAppointments(data.appointments);
+        setAppointments(data.appointments.reverse());
       } else {
         toast.error(data.message);
       }
