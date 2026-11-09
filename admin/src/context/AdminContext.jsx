@@ -1,9 +1,7 @@
 import { createContext, useState } from "react";
-import axios from "axios"; // Fixed import
+import axios from "axios";
 import { toast } from "react-toastify";
 
-
-// Create context
 export const AdminContext = createContext();
 
 const AdminContextProvider = (props) => {
@@ -23,7 +21,6 @@ const AdminContextProvider = (props) => {
       );
       if (data.success) {
         setDoctors(data.doctors);
-        console.log(data.doctors);
       } else {
         toast.error(data.message);
       }
@@ -31,6 +28,7 @@ const AdminContextProvider = (props) => {
       toast.error(error.response?.data?.message || error.message);
     }
   };
+
   const changeAvailability = async (docId) => {
     try {
       const { data } = await axios.post(
@@ -48,6 +46,7 @@ const AdminContextProvider = (props) => {
       toast.error(error.response?.data?.message || error.message);
     }
   };
+
   const getAllAppointments = async () => {
     try {
       const { data } = await axios.post(
@@ -57,14 +56,31 @@ const AdminContextProvider = (props) => {
       );
       if (data.success) {
         setAppointments(data.appointments);
-        console.log(data.appointments); // <-- Should log appointments
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       toast.error("Failed to fetch appointments");
     }
-  }
+  };
+
+  const deleteDoctor = async (docId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/admin/delete-doctor",
+        { docId },
+        { headers: { aToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        getAllDoctors();
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
 
   const value = {
     aToken,
@@ -73,7 +89,9 @@ const AdminContextProvider = (props) => {
     doctors,
     getAllDoctors,
     changeAvailability,
-    appointments,setAppointments,
+    deleteDoctor,
+    appointments,
+    setAppointments,
     getAllAppointments,
   };
 
