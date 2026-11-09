@@ -23,6 +23,8 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
+          localStorage.removeItem("dToken");
+          setDToken("");
           toast.success("Login successful!");
         } else {
           toast.error(data.message || "Login failed");
@@ -33,6 +35,8 @@ const Login = () => {
         if (data.success) {
           localStorage.setItem("dToken", data.token);
           setDToken(data.token);
+          localStorage.removeItem("aToken");
+          setAToken("");
           toast.success("Login successful!");
         } else {
           toast.error(data.message || "Login failed");
