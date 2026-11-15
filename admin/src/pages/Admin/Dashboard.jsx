@@ -4,7 +4,7 @@ import { AdminContext } from '../../context/AdminContext'
 import { AppContext } from '../../context/AppContext'
 
 const Dashboard = () => {
-  const { aToken, doctors, appointments, getAllDoctors, getAllAppointments } = useContext(AdminContext)
+  const { aToken, doctors, appointments, getAllDoctors, getAllAppointments, cancelAppointment } = useContext(AdminContext)
   const { slotDateFormat } = useContext(AppContext)
 
   useEffect(() => {
@@ -77,8 +77,15 @@ const Dashboard = () => {
                 </div>
                 {item.cancelled ? (
                   <p className='text-red-400 text-xs font-medium'>Cancelled</p>
+                ) : item.isCompleted ? (
+                  <p className='text-green-500 text-xs font-medium'>Completed</p>
                 ) : (
-                  <img className='w-10 cursor-pointer hover:scale-105 transition-transform' src={assets.cancel_icon} alt="Cancel" />
+                  <img
+                    onClick={() => cancelAppointment(item._id)}
+                    className='w-10 cursor-pointer hover:scale-105 transition-transform'
+                    src={assets.cancel_icon}
+                    alt="Cancel"
+                  />
                 )}
               </div>
             ))
