@@ -227,11 +227,19 @@ const cancelAppointment = async (req, res) => {
   try {
     const { userId, appointmentId } = req.body;
     const appointmentData = await appointmentModel.findById(appointmentId);
-    // verify appointmert
+    // verify appointment
     if (appointmentData.userId !== userId) {
       return res.json({
         success: false,
         message: "You are not authorized to cancel this appointment",
+      });
+    }
+
+    // Do not allow cancelling if payment is already made
+    if (appointmentData.payment) {
+      return res.json({
+        success: false,
+        message: "Paid appointments cannot be cancelled",
       });
     }
     await appointmentModel.findByIdAndUpdate(appointmentId, {
