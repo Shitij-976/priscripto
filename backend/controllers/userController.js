@@ -5,6 +5,12 @@ import userModel from "../models/userModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
+import React from "react";
+import { sendNotificationEmail } from "../config/email.js";
+import {
+  AppointmentBookedTemplate,
+  AppointmentCancelledTemplate,
+} from "../templates/emailTemplates.js";
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -203,6 +209,22 @@ const bookAppointment = async (req, res) => {
     await newappointment.save();
     // save new slot data in docData
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
+    // Send confirmation email notification using React Email
+    sendNotificationEmail({
+      to: userData.email,
+      subject: `Appointment Confirmed with Dr. ${docData.name} - Prescripto`,
+      templateElement: React.createElement(AppointmentBookedTemplate, {
+        patientName: userData.name,
+        doctorName: docData.name,
+        speciality: docData.speciality,
+        slotDate,
+        slotTime,
+        fees: docData.fees,
+        address: docData.address,
+      }),
+    });
+
     res.json({ success: true, message: "Appointment booked" });
   } catch (error) {
     console.log(error);
@@ -259,6 +281,20 @@ const cancelAppointment = async (req, res) => {
       slots_booked[slotDate] = [];
     }
     await doctorModel.findByIdAndUpdate(docId, { slots_booked });
+
+    // Send cancellation email notification
+    sendNotificationEmail({
+      to: appointmentData.userData?.email,
+      subject: `Appointment Cancelled - Prescripto`,
+      templateElement: React.createElement(AppointmentCancelledTemplate, {
+        patientName: appointmentData.userData?.name,
+        doctorName: appointmentData.docData?.name,
+        slotDate: appointmentData.slotDate,
+        slotTime: appointmentData.slotTime,
+        cancelledBy: "You",
+      }),
+    });
+
     res.json({ success: true, message: "Appointment cancelled successfully" });
   } catch (error) {
     console.log(error);

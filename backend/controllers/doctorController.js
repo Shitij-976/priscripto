@@ -2,6 +2,12 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import React from "react";
+import { sendNotificationEmail } from "../config/email.js";
+import {
+  AppointmentCancelledTemplate,
+  AppointmentCompletedTemplate,
+} from "../templates/emailTemplates.js";
 
 // API for doctor login
 const loginDoctor = async (req, res) => {
@@ -89,6 +95,19 @@ const appointmentCancel = async (req, res) => {
         await doctorModel.findByIdAndUpdate(docId, { slots_booked });
       }
 
+      // Send cancellation email to patient
+      sendNotificationEmail({
+        to: appointmentData.userData?.email,
+        subject: `Appointment Cancelled by Doctor - Prescripto`,
+        templateElement: React.createElement(AppointmentCancelledTemplate, {
+          patientName: appointmentData.userData?.name,
+          doctorName: appointmentData.docData?.name,
+          slotDate: appointmentData.slotDate,
+          slotTime: appointmentData.slotTime,
+          cancelledBy: `Dr. ${appointmentData.docData?.name || 'Doctor'}`,
+        }),
+      });
+
       return res.json({ success: true, message: "Appointment Cancelled" });
     } else {
       return res.json({ success: false, message: "Cancellation Failed" });
@@ -107,6 +126,17 @@ const appointmentComplete = async (req, res) => {
 
     if (appointmentData && appointmentData.docId === docId) {
       await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true });
+      // Send completion email to patient
+      sendNotificationEmail({
+        to: appointmentData.userData?.email,
+        subject: `Consultation Completed - Prescripto`,
+        templateElement: React.createElement(AppointmentCompletedTemplate, {
+          patientName: appointmentData.userData?.name,
+          doctorName: appointmentData.docData?.name,
+          slotDate: appointmentData.slotDate,
+        }),
+      });
+
       return res.json({ success: true, message: "Appointment Completed" });
     } else {
       return res.json({ success: false, message: "Mark Failed" });

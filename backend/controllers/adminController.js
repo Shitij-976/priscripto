@@ -4,6 +4,9 @@ import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
+import React from "react";
+import { sendNotificationEmail } from "../config/email.js";
+import { AppointmentCancelledTemplate } from "../templates/emailTemplates.js";
 
 const getLocalImageUrl = (req, imageFile) =>
   `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
@@ -229,6 +232,19 @@ const appointmentCancel = async (req, res) => {
         await doctorModel.findByIdAndUpdate(docId, { slots_booked });
       }
     }
+
+    // Send cancellation email to patient
+    sendNotificationEmail({
+      to: appointmentData.userData?.email,
+      subject: `Appointment Cancelled by Admin - Prescripto`,
+      templateElement: React.createElement(AppointmentCancelledTemplate, {
+        patientName: appointmentData.userData?.name,
+        doctorName: appointmentData.docData?.name,
+        slotDate: appointmentData.slotDate,
+        slotTime: appointmentData.slotTime,
+        cancelledBy: "Clinic Admin",
+      }),
+    });
 
     res.json({ success: true, message: "Appointment Cancelled" });
   } catch (error) {
