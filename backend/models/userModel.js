@@ -33,6 +33,15 @@ const userSchema = new mongoose.Schema(
       default: "0000000000",
       match: [/^\d{10}$/, "Invalid phone number format"],
     }, // Ensures phone number is always 10 digits
+
+    resetOtp: {
+      type: String,
+      default: "",
+    }, // 6-digit password reset OTP
+    resetOtpExpireAt: {
+      type: Number,
+      default: 0,
+    }, // Expiration timestamp for reset OTP
   },
   { timestamps: true, minimize: false }
 );

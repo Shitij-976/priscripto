@@ -186,3 +186,61 @@ export const AppointmentCompletedTemplate = ({ patientName, doctorName, slotDate
     )
   );
 };
+
+// 4. Reset Password OTP Email Template
+export const ResetPasswordOtpTemplate = ({ userName, otp }) => {
+  return React.createElement(
+    Html,
+    { lang: 'en' },
+    React.createElement(Head, null),
+    React.createElement(
+      Body,
+      { style: mainStyle },
+      React.createElement(
+        Container,
+        { style: containerStyle },
+        React.createElement('div', { style: headerBrand }, 'Prescripto'),
+        React.createElement(Heading, { style: headingStyle }, 'Password Reset Request 🔐'),
+        React.createElement(Text, { style: textStyle }, `Hello ${userName || 'User'},`),
+        React.createElement(
+          Text,
+          { style: textStyle },
+          'We received a request to reset your password. Use the OTP code below to set a new password:'
+        ),
+        React.createElement(
+          Section,
+          {
+            style: {
+              backgroundColor: '#eef2ff',
+              border: '2px dashed #6366f1',
+              borderRadius: '8px',
+              padding: '20px',
+              textAlign: 'center',
+              margin: '20px 0',
+            },
+          },
+          React.createElement(
+            Text,
+            {
+              style: {
+                fontSize: '32px',
+                fontWeight: 'bold',
+                color: '#4338ca',
+                letterSpacing: '6px',
+                margin: 0,
+              },
+            },
+            otp
+          )
+        ),
+        React.createElement(
+          Text,
+          { style: { ...textStyle, fontSize: '13px', color: '#64748b' } },
+          'This OTP is valid for 15 minutes. If you did not request this, you can safely ignore this email.'
+        ),
+        React.createElement(Hr, { style: { borderColor: '#e2e8f0', margin: '24px 0 16px' } }),
+        React.createElement(Text, { style: footerStyle }, '© Prescripto Healthcare. All rights reserved.')
+      )
+    )
+  );
+};

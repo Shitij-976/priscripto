@@ -11,6 +11,7 @@ import MyAppointments from "./pages/MyAppointments";
 import Appointment from "./pages/Appointment";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
 import Footer from "./components/Footer";
 
 const App = () => {
@@ -22,6 +23,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/doctors" element={<Doctors />} />
           <Route path="/doctors/:speciality" element={<Doctors />} />
           <Route path="/about" element={<About />} />

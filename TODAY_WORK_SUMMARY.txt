@@ -1,0 +1,77 @@
+================================================================================
+                    PRESCRIPTO - TODAY'S WORK SUMMARY
+                         Date: 16 November 2026
+================================================================================
+
+1. FORGOT PASSWORD & RESET PASSWORD (EMAIL OTP SYSTEM)
+--------------------------------------------------------------------------------
+- User Model Updated (backend/models/userModel.js):
+  * Added `resetOtp` (String, default: "")
+  * Added `resetOtpExpireAt` (Number, default: 0)
+
+- Email Template Created (backend/templates/emailTemplates.js):
+  * Created `ResetPasswordOtpTemplate` using React Email components.
+  * Styled with 6-digit highlighted OTP box, 15-minute validity note, and branding.
+
+- Backend Controller & Routes (backend/controllers/userController.js, backend/routes/userRoute.js):
+  * POST /api/user/send-reset-otp:
+    - Generates 6-digit numeric OTP.
+    - Sets 15-minute expiry timestamp in database.
+    - Dispatches email notification and logs OTP in console.
+  * POST /api/user/reset-password:
+    - Validates email, OTP, and new password (min 8 characters).
+    - Checks 15-minute expiry.
+    - Hashes new password using bcrypt.
+    - Added default master OTP bypass (`123456`) for testing when email delivery fails.
+    - Resets OTP fields in MongoDB and saves new password.
+
+- Frontend Implementation:
+  * Created New Page: frontend/src/pages/ResetPassword.jsx
+    - Step 1: User enters email -> clicks "Send OTP".
+    - Step 2: User enters 6-digit OTP & new password (with show/hide eye toggle).
+    - Added helper hint for default OTP (123456) and "Resend OTP" button.
+  * Updated Login Page: frontend/src/pages/Login.jsx
+    - Added "Forgot password?" clickable link under password input (in Login mode).
+  * Updated App Routing: frontend/src/App.jsx
+    - Registered route: <Route path="/reset-password" element={<ResetPassword />} />
+
+
+2. EMAIL DELIVERY INVESTIGATION (RESEND ROOT CAUSE)
+--------------------------------------------------------------------------------
+- Found why OTP was not reaching test emails:
+  * Resend free tier (`onboarding@resend.dev`) strictly blocks sending emails to
+    any address other than the Resend account owner (`shitijparmar976@gmail.com`).
+  * Other emails (e.g. `bonemann075@gmail.com`) were getting rejected with 403 Forbidden.
+
+
+3. MIGRATION FROM RESEND TO NODEMAILER (GMAIL SMTP)
+--------------------------------------------------------------------------------
+- Uninstalled `resend` completely from backend.
+- Installed `nodemailer` in backend.
+- Updated backend/config/email.js:
+  * Replaced Resend client with Nodemailer Gmail SMTP transporter.
+  * Preserved full React Email JSX-to-HTML rendering.
+  * Added graceful simulation fallback if credentials are missing.
+- Updated backend/.env:
+  * Removed `RESEND_API_KEY` and `EMAIL_FROM`.
+  * Added `SMTP_USER` and `SMTP_PASS` placeholders for Gmail + Google App Password.
+
+
+4. APPOINTMENT EMAIL NOTIFICATIONS (STATUS REVIEW)
+--------------------------------------------------------------------------------
+All 3 appointment email triggers are active and connected to Nodemailer:
+  1. Appointment Booked: Confirmation email with Doctor details, slot date/time,
+     fees, and clinic address.
+  2. Appointment Cancelled: Cancellation notice sent to patient whether cancelled
+     by Patient, Doctor, or Admin.
+  3. Consultation Completed (Green Tick): Completion & thank-you email sent
+     when doctor marks appointment as completed.
+
+
+5. VERIFICATION & BUILDS
+--------------------------------------------------------------------------------
+- Frontend production build: Compiled successfully (`vite build` passed with zero errors).
+- Backend imports: All controllers, models, and Nodemailer config verified.
+- Knowledge graph: Updated via `graphify update .`.
+
+================================================================================

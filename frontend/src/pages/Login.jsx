@@ -140,6 +140,16 @@ const Login = () => {
           </p>
         </div>
 
+        {/* Forgot password link */}
+        {state === "Login" && (
+          <p
+            onClick={() => navigate("/reset-password")}
+            className="text-xs text-primary cursor-pointer hover:underline -mt-1 self-end"
+          >
+            Forgot password?
+          </p>
+        )}
+
         {/* Submit button */}
         <button
           type="submit"
