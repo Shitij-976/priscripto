@@ -257,8 +257,28 @@ const cancelAppointment = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
-//api to make payment using razor pay
+// API to make payment for appointment (1-click mock/test payment mode)
+const paymentRazorpay = async (req, res) => {
+  try {
+    const { userId, appointmentId } = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId);
 
+    if (!appointmentData || appointmentData.cancelled) {
+      return res.json({ success: false, message: "Appointment cancelled or not found" });
+    }
+
+    if (appointmentData.userId !== userId) {
+      return res.json({ success: false, message: "Unauthorized action" });
+    }
+
+    // Mark appointment as paid online
+    await appointmentModel.findByIdAndUpdate(appointmentId, { payment: true });
+    res.json({ success: true, message: "Payment Successful! Appointment paid online." });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
 
 export {
   registerUser,
@@ -268,4 +288,5 @@ export {
   bookAppointment,
   listAppointment,
   cancelAppointment,
+  paymentRazorpay,
 };
