@@ -2,6 +2,7 @@ import doctorModel from "../models/doctorModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { v2 as cloudinary } from "cloudinary";
 import React from "react";
 import { sendNotificationEmail } from "../config/email.js";
 import {
@@ -181,6 +182,58 @@ const doctorDashboard = async (req, res) => {
   }
 };
 
+// API to get doctor profile for Doctor Panel
+const doctorProfile = async (req, res) => {
+  try {
+    const { docId } = req.body;
+    const profileData = await doctorModel.findById(docId).select("-password");
+    res.json({ success: true, profileData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// API to update doctor profile data from Doctor Panel
+const updateDoctorProfile = async (req, res) => {
+  try {
+    const { docId, fees, address, about, available, name, experience } = req.body;
+    const imageFile = req.file;
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (fees !== undefined) updateData.fees = Number(fees);
+    if (about !== undefined) updateData.about = about;
+    if (experience !== undefined) updateData.experience = experience;
+    if (available !== undefined) updateData.available = available === "true" || available === true;
+    if (address !== undefined) {
+      updateData.address = typeof address === "string" ? JSON.parse(address) : address;
+    }
+
+    if (imageFile) {
+      const isCloudinaryConfigured =
+        process.env.CLOUDINARY_NAME &&
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_SECRET_KEY;
+
+      if (isCloudinaryConfigured) {
+        const imageUploader = await cloudinary.uploader.upload(imageFile.path, {
+          resource_type: "image",
+        });
+        updateData.image = imageUploader.secure_url;
+      } else {
+        updateData.image = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
+      }
+    }
+
+    await doctorModel.findByIdAndUpdate(docId, updateData);
+    res.json({ success: true, message: "Profile Updated" });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
 export {
   loginDoctor,
   changeAvailabilty,
@@ -189,4 +242,6 @@ export {
   appointmentCancel,
   appointmentComplete,
   doctorDashboard,
+  doctorProfile,
+  updateDoctorProfile,
 };

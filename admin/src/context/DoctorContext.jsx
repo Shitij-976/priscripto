@@ -11,6 +11,24 @@ const DoctorContextProvider = (props) => {
   );
   const [appointments, setAppointments] = useState([]);
   const [dashData, setDashData] = useState(false);
+  const [profileData, setProfileData] = useState(false);
+
+  // Fetch doctor profile data
+  const getProfileData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/doctor/profile", {
+        headers: { dToken },
+      });
+      if (data.success) {
+        setProfileData(data.profileData);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || error.message);
+    }
+  };
 
   // Fetch all appointments for the logged-in doctor
   const getAppointments = async () => {
@@ -100,6 +118,9 @@ const DoctorContextProvider = (props) => {
     getDashData,
     completeAppointment,
     cancelAppointment,
+    profileData,
+    setProfileData,
+    getProfileData,
   };
 
   return (
